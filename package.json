@@ -1,7 +1,0 @@
-{
-  "name": "vijay-gpt",
-  "version": "1.0.0",
-  "description": "VIJAY GPT - a simple chat site powered by the free Gemini API",
-  "license": "MIT",
-  "engines": { "node": ">=18" }
-}
