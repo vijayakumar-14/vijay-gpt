@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>VIJAY GPT 1.0</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background:#0f0f14; color:#eee; max-width:700px; margin:0 auto; padding:20px; }
+    h1 { text-align:center; margin-bottom:4px; }
+    .sub { text-align:center; color:#888; margin:0 0 16px; font-size:14px; }
+    #chat { height:60vh; overflow-y:auto; border:1px solid #333; border-radius:10px; padding:12px; }
+    .msg { margin:8px 0; padding:10px; border-radius:8px; white-space:pre-wrap; line-height:1.5; }
+    .user { background:#2b3a67; text-align:right; }
+    .bot { background:#1e1e28; }
+    #row { display:flex; gap:8px; margin-top:12px; }
+    input { flex:1; padding:12px; border-radius:8px; border:1px solid #333; background:#1a1a22; color:#eee; }
+    button { padding:12px 20px; border:0; border-radius:8px; background:#6c5ce7; color:#fff; cursor:pointer; }
+    button:disabled { opacity:.5; cursor:not-allowed; }
+  </style>
+</head>
+<body>
+  <h1>VIJAY GPT</h1>
+  <p class="sub">Version 1.0</p>
+  <div id="chat"></div>
+  <div id="row">
+    <input id="q" placeholder="Ask VIJAY GPT anything..." autofocus />
+    <button id="send">Send</button>
+  </div>
+  <script>
+    const chat = document.getElementById("chat");
+    const q = document.getElementById("q");
+    const btn = document.getElementById("send");
+
+    function add(text, cls) {
+      const d = document.createElement("div");
+      d.className = "msg " + cls;
+      d.textContent = text;
+      chat.appendChild(d);
+      chat.scrollTop = chat.scrollHeight;
+      return d;
+    }
+
+    async function send() {
+      const text = q.value.trim();
+      if (!text) return;
+      add(text, "user");
+      q.value = "";
+      btn.disabled = true;
+      const thinking = add("Thinking...", "bot");
+      try {
+        const r = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: text }),
+        });
+        const data = await r.json();
+        thinking.textContent = data.answer || data.error || "Something went wrong.";
+      } catch (e) {
+        thinking.textContent = "Network error. Please try again.";
+      }
+      btn.disabled = false;
+      q.focus();
+    }
+
+    btn.onclick = send;
+    q.addEventListener("keydown", e => { if (e.key === "Enter") send(); });
+  </script>
+</body>
+</html>
